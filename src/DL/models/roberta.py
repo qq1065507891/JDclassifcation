@@ -1,37 +1,16 @@
+'''
+@Author: your name
+@Date: 2020-06-18 21:15:35
+@LastEditTime: 2020-06-30 14:20:08
+@LastEditors: Please set LastEditors
+@Description: In User Settings Edit
+@FilePath: /bookClassification/src/DL/models/roberta.py
+'''
 # coding: UTF-8
 import torch
 import torch.nn as nn
 from transformers import RobertaTokenizer, RobertaConfig, RobertaForSequenceClassification
 from __init__ import *
-from src.utils import config
-
-
-class Config(object):
-
-    """配置参数"""
-    def __init__(self, dataset):
-        self.model_name = 'xlnet'
-        self.train_path = dataset + '/data/train.txt'                                # 训练集
-        self.dev_path = dataset + '/data/dev.txt'                                    # 验证集
-        self.test_path = dataset + '/data/test.txt'                                  # 测试集
-        self.class_list = [x.strip() for x in open(
-            dataset + '/data/class.txt').readlines()]                                # 类别名单
-        self.save_path = dataset + 'model/saved_dict/' + self.model_name + '.ckpt'        # 模型训练结果
-        self.log_path = dataset + '/log/' + self.model_name
-        self.device = config.device  # 设备  
-        
-        self.require_improvement = 10000                                # 若超过1000batch效果还没提升，则提前结束训练
-        self.num_classes = len(self.class_list)                         # 类别数
-
-        self.num_epochs = 30                                          # epoch数
-        self.batch_size = 32                                           # mini-batch大小
-        self.pad_size = 400                                              # 每句话处理成的长度(短填长切)
-        self.learning_rate = 5e-5                                      # 学习率
-        self.bert_path = dataset + 'model/roberta/'
-        self.tokenizer = RobertaTokenizer.from_pretrained(self.bert_path)
-        self.hidden_size = 768
-        self.eps = 1e-8
-        self.gradient_accumulation_steps = 1
 
 
 class Model(nn.Module):

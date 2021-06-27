@@ -1,10 +1,10 @@
 '''
 @Author: xiaoyao jiang
 @Date: 2020-04-09 17:46:03
-@LastEditTime: 2020-04-10 11:17:56
-@LastEditors: Please set LastEditors
+@LastEditTime: 2020-07-02 21:35:47
+@LastEditors: xiaoyao jiang
 @Description: train
-@FilePath: /textClassification/src/DL/train.py
+@FilePath: /bookClassification/src/DL/train_helper.py
 '''
 import numpy as np
 import torch
@@ -13,7 +13,6 @@ import torch.nn.functional as F
 from sklearn import metrics
 import time
 from tqdm import tqdm
-import torchsnooper
 from __init__ import *
 from src.utils.tools import get_time_dif
 from transformers import AdamW, get_linear_schedule_with_warmup
@@ -38,28 +37,40 @@ def init_network(model, method='xavier', exclude='embedding', seed=123):
                 pass
 
 
-
 def train(config, model, train_iter, dev_iter, test_iter):
     start_time = time.time()
     model.train()
     if config.model_name.isupper():
         print('User Adam...')
         print(config.device)
-        optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
+        optimizer = torch.optim.Adam(model.parameters(),
+                                     lr=config.learning_rate)
         # 学习率指数衰减，每次epoch：学习率 = gamma * 学习率
 #         scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
-    else: 
+    else:
         print('User AdamW...')
         print(config.device)
         param_optimizer = list(model.named_parameters())
         no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
-        optimizer_grouped_parameters = [
-                {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
-                {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
-            # optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
+        optimizer_grouped_parameters = [{
+            'params': [
+                p for n, p in param_optimizer
+                if not any(nd in n for nd in no_decay)
+            ],
+            'weight_decay':
+            0.01
+        }, {
+            'params':
+            [p for n, p in param_optimizer if any(nd in n for nd in no_decay)],
+            'weight_decay':
+            0.0
+        }]
+        # optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
         optimizer = AdamW(optimizer_grouped_parameters,
                           lr=config.learning_rate,
                           eps=config.eps)
+
+
 #         scheduler = get_linear_schedule_with_warmup(
 #                                 optimizer,
 #                                 num_warmup_steps=0,
@@ -82,7 +93,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
             loss = F.cross_entropy(outputs, labels)
             loss.backward()
             optimizer.step()
-#             scheduler.step()
+            #             scheduler.step()
             if total_batch % 1000 == 0 and total_batch != 0:
                 # 每多少轮输出在训练集和验证集上的效果
                 true = labels.data.cpu()
@@ -98,7 +109,9 @@ def train(config, model, train_iter, dev_iter, test_iter):
                     improve = ''
                 time_dif = get_time_dif(start_time)
                 msg = 'Iter: {0:>6},  Train Loss: {1:>5.2},  Train Acc: {2:>6.2%},  Val Loss: {3:>5.2},  Val Acc: {4:>6.2%},  Time: {5} {6}'
-                print(msg.format(total_batch, loss.item(), train_acc, dev_loss, dev_acc, time_dif, improve))
+                print(
+                    msg.format(total_batch, loss.item(), train_acc, dev_loss,
+                               dev_acc, time_dif, improve))
                 model.train()
             total_batch += 1
             if total_batch - last_improve > config.require_improvement:
@@ -116,7 +129,10 @@ def test(config, model, test_iter):
     model.load_state_dict(torch.load(config.save_path))
     model.eval()
     start_time = time.time()
-    test_acc, test_loss, test_report, test_confusion = evaluate(config, model, test_iter, test=True)
+    test_acc, test_loss, test_report, test_confusion = evaluate(config,
+                                                                model,
+                                                                test_iter,
+                                                                test=True)
     msg = 'Test Loss: {0:>5.2},  Test Acc: {1:>6.2%}'
     print(msg.format(test_loss, test_acc))
     print("Precision, Recall and F1-Score...")
@@ -148,7 +164,10 @@ def evaluate(config, model, data_iter, test=False):
 
     acc = metrics.accuracy_score(labels_all, predict_all)
     if test:
-        report = metrics.classification_report(labels_all, predict_all, target_names=config.class_list, digits=4)
+        report = metrics.classification_report(labels_all,
+                                               predict_all,
+                                               target_names=config.class_list,
+                                               digits=4)
         confusion = metrics.confusion_matrix(labels_all, predict_all)
         return acc, loss_total / len(data_iter), report, confusion
     return acc, loss_total / len(data_iter)

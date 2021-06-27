@@ -1,40 +1,71 @@
 '''
 @Author: xiaoyao jiang
 @Date: 2020-04-09 17:45:10
-@LastEditTime: 2020-04-10 13:38:33
-@LastEditors: Please set LastEditors
+@LastEditTime: 2020-07-17 16:34:45
+@LastEditors: xiaoyao jiang
 @Description: main
-@FilePath: /textClassification/src/DL/main.py
+@FilePath: /bookClassification/src/DL/train.py
 '''
 import time
 import torch
 import numpy as np
 import pandas as pd
-from train_helper import train, init_network
 from importlib import import_module
 import argparse
 from torch.utils.data import DataLoader
-from sklearn.externals import joblib
+import joblib
 from src.data.dataset import MyDataset, collate_fn
+from src.DL.train_helper import train, init_network
 from src.data.dictionary import Dictionary
 from src.utils.tools import create_logger
 from src.utils import config
-import torchsnooper
+from transformers import BertTokenizer, RobertaTokenizer, XLNetTokenizer
+
+
 parser = argparse.ArgumentParser(description='Chinese Text Classification')
-parser.add_argument('--model', type=str, required=True, help='choose a model: CNN, RNN, RCNN, RNN_Att, DPCNN, Transformer')
-parser.add_argument('--word', default=True, type=bool, help='True for word, False for char')
-parser.add_argument('--max_length', default=400, type=int, help='True for word, False for char')
-parser.add_argument('--dictionary', default=None, type=str, help='dictionary path')
+parser.add_argument(
+    '--model',
+    type=str,
+    required=True,
+    help='choose a model: CNN, RNN, RCNN, RNN_Att, DPCNN, Transformer')
+parser.add_argument('--word',
+                    default=True,
+                    type=bool,
+                    help='True for word, False for char')
+parser.add_argument('--max_length',
+                    default=400,
+                    type=int,
+                    help='True for word, False for char')
+parser.add_argument('--dictionary',
+                    default=None,
+                    type=str,
+                    help='dictionary path')
 args = parser.parse_args()
 
 logger = create_logger(config.root_path + '/logs/main.log')
-
 
 if __name__ == '__main__':
     model_name = args.model
 
     x = import_module('models.' + model_name)
-    conf = x.Config(dataset='../../')
+    if model_name in ['bert', 'xlnet', 'roberta']:
+        config.bert_path = config.root_path + '/model/' + model_name + '/'
+        if 'bert' in model_name:
+            config.tokenizer = BertTokenizer.from_pretrained(config.bert_path)
+        elif 'xlnet' in model_name:
+            config.tokenizer = XLNetTokenizer.from_pretrained(config.bert_path)
+        elif 'roberta' in model_name:
+            config.tokenizer = RobertaTokenizer.from_pretrained(config.bert_path)
+        else:
+            raise NotImplementedError
+
+        config.save_path = config.root_path + 'model/saved_dict/' + model_name + '.ckpt'  # 模型训练结果
+        config.log_path = config.root_path + '/logs/' + model_name
+        config.hidden_size = 768
+        config.eps = 1e-8
+        config.gradient_accumulation_steps = 1
+        config.word = True
+        config.max_length = 400
     np.random.seed(1)
     torch.manual_seed(1)
     torch.cuda.manual_seed_all(1)
@@ -58,25 +89,48 @@ if __name__ == '__main__':
     else:
         dictionary = joblib.load(args.dictionary)
     if not args.model.isupper():
-        tokenizer = conf.tokenizer
+        tokenizer = config.tokenizer
     else:
         tokenizer = None
 
     logger.info('Making dataset & dataloader...')
-    train_dataset = MyDataset(config.train_file, dictionary, args.max_length, tokenizer=tokenizer, word=args.word)
-    train_dataloader = DataLoader(train_dataset, batch_size=conf.batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn)
-    dev_dataset = MyDataset(config.dev_file, dictionary, args.max_length,  tokenizer=tokenizer, word=args.word)
-    dev_dataloader = DataLoader(dev_dataset, batch_size=conf.batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn)
-    test_dataset = MyDataset(config.test_file, dictionary, args.max_length,  tokenizer=tokenizer, word=args.word)
-    test_dataloader = DataLoader(test_dataset, batch_size=conf.batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn)
+    train_dataset = MyDataset(config.train_file,
+                              dictionary,
+                              args.max_length,
+                              tokenizer=tokenizer,
+                              word=args.word)
+    train_dataloader = DataLoader(train_dataset,
+                                  batch_size=config.batch_size,
+                                  shuffle=True,
+                                  drop_last=True,
+                                  collate_fn=collate_fn)
+    dev_dataset = MyDataset(config.dev_file,
+                            dictionary,
+                            args.max_length,
+                            tokenizer=tokenizer,
+                            word=args.word)
+    dev_dataloader = DataLoader(dev_dataset,
+                                batch_size=config.batch_size,
+                                shuffle=True,
+                                drop_last=True,
+                                collate_fn=collate_fn)
+    test_dataset = MyDataset(config.test_file,
+                             dictionary,
+                             args.max_length,
+                             tokenizer=tokenizer,
+                             word=args.word)
+    test_dataloader = DataLoader(test_dataset,
+                                 batch_size=config.batch_size,
+                                 shuffle=True,
+                                 drop_last=True,
+                                 collate_fn=collate_fn)
 
     # train
-    
-#     conf.n_vocab = dictionary.max_vocab_size
-    model = x.Model(conf).to(config.device)
-    
+
+    #     conf.n_vocab = dictionary.max_vocab_size
+    model = x.Model(config).to(config.device)
     if model_name != 'Transformer':
         init_network(model)
     print(model.parameters)
 
-    train(conf, model, train_dataloader, dev_dataloader, test_dataloader)
+    train(config, model, train_dataloader, dev_dataloader, test_dataloader)

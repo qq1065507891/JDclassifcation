@@ -1,205 +1,332 @@
-## 文件介绍与运行说明
-### sklearn_models_TFidf.py 实现了基于TF-idf模型产生的词向量训练各种传统机器学习模型  可以直接通过 python sklearn_models_TFidf.py直接运行
-### sklearn_features_Fast.py 实现了基于FastText模型产生的词向量训练各种传统机器学习模型  可以直接通过 python sklearn_features_Fast.py直接运行
-### sklearn_features_w2v.py 实现了基于Word2Vec模型产生的词向量训练各种传统机器学习模型  可以直接通过 python sklearn_features_w2v.py直接运行
+# Book Classification Assignment 2
 
+## Files
 
-## 实验结果
-### 实验1
-TF-IDF(6000个词表,max_df=0.4, min_df=0.001)         
+#### data/
 
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  |   0.483 |  0.4607   |
-|  LogisticRegression  | 0.7606   |  0.7226  |
-| MultinomialNB   | 0.6835   |  0.6637  |
-|  SVC  |    |  0.7641  |
-| LightGBM   |    |    |
- 
-### 实验2.
-TF-IDF(73351个词,max_df=0.4, min_df=0.0001)
+        数据存放目录
+#### model/
 
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  |   0.3957 |  0.3838.    |
-|  LogisticRegression  |  0.8127  |   0.7545 |
-| MultinomialNB   | 0.6745   |  0.6453  |
-|  SVC  |    |    |
-| LightGBM   |    |    |
+        模型存放目录
+#### logs/
 
+        日志存放目录
 
-### 实验3.
-embedding(参数min-count=2，windows=3,(Train-206316,Test-29474),词个数 217943)
+#### app.py
 
-3.1基于w2v的文本分类结果     （词表个数：217943）   
-        
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  |  0.4687  |  0.4484   |
-|  LogisticRegression  |  0.7210  |  0.6683  |
-| MultinomialNB   | 0.434   |  0.459  |
+        代码部署部分
+#### src/
 
+        核心代码部分
 
-3.2基于fast的文本分类结果         
+#### `src/data`
 
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  |  0.4475  |  0.42   |
-|  LogisticRegression  | 0.7098   |  0.6270  |
-| MultinomialNB   |  0.394  |  0.4067  |
+        `src/data/dataset.py` : 主要用于深度学习的数据处理
+        `src/data/mlData.py` : 主要用于机器学习的数据处理
+        `src/data/dictionary.py` : 生成词表， 能够根据id确定词， 或者根据词确定id
 
-       
+#### `src/word2vec/`
 
-### 实验4.
-embedding(参数min-count=2，windows=2 (Train-206316,Test-29474))
+        `src/word2vec/embedding.py`: tfidf, word2vec, fasttext, lda 的训练，保存加载。
+        `src/word2vec/autoencoder.py`: autoencoder的训练，保存加载。
 
-4.1基于w2v的文本分类结果 （26119）     
+#### `src/utils/`
 
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  |  0.4661  |  0.4278   |
-|  LogisticRegression  |  0.7171  |  0.6218  |
-| MultinomialNB   |  0.4459  |   0.4477 |
-|  SVC  | 0.7972   | 0.7076   |
-| LightGBM   |  0.7477  | 0.6458   |
-          
+        `src/utils/config.py`: 相关参数的配置文件， 如训练数据集所在目录， DL模型相关参数等等
+        `src/utils/feature.py`: 特征工程相关的函数
+        `src/utils/tools.py`: 通用类函数
 
-4.2基于fast的文本分类结果(19592个词表)         
+#### `src/ML/`
 
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  |  0.4443  |  0.4156   |
-|  LogisticRegression  |  0.706  |  0.5525  |
-| MultinomialNB   |  0.3859  |  0.3732  |
-|  SVC  |  0.7597  | 0.6565   |
-| LightGBM   |  0.7317  | 0.6222  |
-       
+        `src/ML/fasttext.py`: fasttext 模型训练，预测， 保存
+        `src/ML/main.py`: 机器学习类模型总入口
+        `src/ML/model.py`: 包含特征工程，参数搜索， 不平衡处理， lightgbm的预测
+
+#### `src/DL/`
+
+        `src/DL/train.py`: 深度学习模型训练主入口
+        `src/DL/train_helper.py`: 深度学习模型实际训练函数
+
+#### `src/DL/models`:
+
+        深度学习模型
+
+## TO-DO list:
+
+### 必备资料
+
+为了完成以下任务，我们需要逐步熟悉、掌握pandas, sklearn, lightgbm， gensim等工具，所以请大家在完成每一个模块时先查阅一下[pandas的API文档](https://pandas.pydata.org/docs/getting_started/index.html#getting-started),[sklearn的API文档](https://scikit-learn.org/stable/modules/classes.html),[gensim的API文档](https://radimrehurek.com/gensim/apiref.html),[lightgbm的API文档](https://lightgbm.readthedocs.io/en/latest/Python-API.html)，弄清楚要使用的模块是做什么的以及如何使用。
 
 
 
-### 实验5.
-embedding_all(参数min-count=1，windows=2，词个数369974)
+### 模块1: 训练Embedding
 
-5.1基于w2v的文本分类结果   
+#### src/word2vec/embedding.py
 
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  | 0.4617   |  0.4464   |
-|  LogisticRegression  |  0.7209  |  0.6901  |
-| MultinomialNB   |  0.4344  | 0.4486   |
+##### 任务1: 完成tfidf训练。
 
-             
+使用sklearn 训练tfidf 模型， 注意了解模型各参数的意义。
 
-5.2基于fast的文本分类结果        
+##### 任务2: 完成word2vec训练。
 
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  |   0.4383 |  0.4264   |
-|  LogisticRegression  | 0.7093   |  0.6457  |
-| MultinomialNB   |  0.4016  | 0.4234   |        
- 
-### 实验6.
-将样本中的词向量中**最大值**作为该样本的表示         
-6.1Word2vec_max的词向量(参数min-count=2，windows=3)
+使用gensim 训练 word2vec 模型， 注意了解API 各参数的意义。
 
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  | 0.3912   | 0.376    |
-|  LogisticRegression  |   0.6311 |  0.5986  |
-| MultinomialNB   |  0.3519  |  0.3375  |
+##### 任务3: 完成fasttext训练。
 
+使用gensim 训练 fasttext 模型， 注意了解API 各参数的意义。
 
+##### 任务4: 完成lda训练。
 
-6.2FastText_max词向量                  
+使用gensim 训练 lda 模型， 注意了解API 各参数的意义。
 
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  |  0.3713  |  0.3631   |
-|  LogisticRegression  |  0.5512  | 0.4958   |
-| MultinomialNB   |  0.3227  |  0.3208  |
+##### 任务5: 完成autoencoder训练。
+
+根据 `src/word2vec/autoencoder.py`的实现， 训练 lda 模型， 注意类中间的调用。
+
+##### 测试
+
+``` shell
+cd src/word2vec
+python3 embedding.py
+```
+###### 你可能用到的模块：
+
+    sklearn.feature_extraction.text.TfidfVectorizer
+
+    gensim.models
 
 
-### 实验7.
-将样本中的词向量的**和**作为该样本的表示
-7.1Word2vec_sum的词向量(参数min-count=2，windows=3)
+### 模块2: 预处理阶段
 
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  |  0.4448  |   0.4306  |
-|  LogisticRegression  |  0.7137  |  0.6796  |
-| MultinomialNB   |  0.3959  |  0.4129  |
+#### src/data/mlData.py:
 
+##### 任务1: 处理文本数据。
 
-7.2FastText_sum词向量
+1. 对文本进行分词
 
-|    | #Train.acc  |   #Test.acc   |
-|:---|:---|:---|
-|  RandomForestClassifier  | 0.4354   |   0.4241  |
-|  LogisticRegression  |  0.7032  |  0.6546  |
-| MultinomialNB   | 0.369   |  0.3818  |
+2. 去除停止词
 
-### FastText模型用于分类的结果
+3. 将文本label转换为id
 
-|   |  #Train.acc | #Test.acc  |
-|---|---|---|
-| 系统词嵌入  | 0.8013  | 0.7389  |
-|  w2v | 0.7740  |  0.7748 |
-| fast|  0.8223 |  0.7719 | 
+#### src/ML/models.py:
+
+##### 任务2: 加载模型。
+
+1. 使用torchvision 初始化 resnet152模型
+
+2. 使用torchvision 初始化 resnext101_32x8d 模型
+
+3. 使用torchvision 初始化 wide_resnet101_2 模型
+
+4. 加载bert 模型
 
 
-### 优化方案
+###### 你可能用到的模块：
 
-#### 数据方面
- 目前训练集数据有20万条左右，训练集3万条左右，一共有33个类别。属于文本的多分类项目。
- 根据实验结果分析，准确率不高在数据方面的主要原因是很多样本的标签都十分接近，很容易分错。
- 以TF-IDF的MultinomialNB（）分类模型对样本数据分析为例：
- 第一种情况：数据样本可以归纳属于多个标签，实际上却只给了一个标签。从而导致模型预测错误。
- 比如：医学类别被错误预测为健身保健类别（样本中含有‘药物，'艾灸', '灸法'’等容易误导模型的词）；文学被预测为国学/古籍类别，动漫被错误预测为青春文学（样本中含有‘小说，浪漫爱情，唯美，仙气，’等误导模型的词），社会科学
- 第二种情况： 数据样本没有问题，没有歧义词。但是模型预测错误，即模型没有学会该样本。
- 第三种：数据中可能存在小部分样本的标签标记错误。即存在标签噪声。
- 比如：某个样本中含有“党的建设，党的作风，执政能力“等 ，该样本却被标为文学标签，但预测为”政治/军事“标签。对于这种错误很可能需要手动进行调整。
+    jieba.cut
+    torchvision.models.resnet152
+    torchvision.models.resnext101_32x8d
+    torchvision.models.wide_resnet101_2
 
 
-### 词向量模型
-* TF-IDF
-  TfidfVectorizer（max_df, min_df)根据调节max_df,和min_df二个参数，在该模型上分别基于6000个词和70000个词进行了实验（如实验1和实验2所示）。根据实验结果分析可得，实验二中的逻辑回归分类器模型准确率要高于实验一，并且在该模型上有一定程度的过拟合现象。总的来说，实验1，2的实验结果相差不大，即该模型中词的个数大小对模型的影响不是很大。
+### 模块3: 特征工程
 
-* Word2vec 和fasttext词嵌入模型
+#### src/ML/models.py & src/utils/feature.py
 
-  目前设置的词向量的维度是300.可以通过min_count和max_vocab_size参数来限定词表的大小。从而去掉一些频率较低的词。
-   第一:这二种词嵌入模型，我们分别在词个数为20000左右（实验三），210000（实验四），369974（实验五）的条件下进行实验。根据实验三，实验四，实验五分析发现，这二种词嵌入模型在不同词个数的情况下产生的样本表示对样本分类结果影响不大。因为样本中对样本决策具有关键作用的词较小，大部分的词对样本分类的影响都比较小。因此减少或者增加词的个数来构建样本表示不会对结果有太大影响。
-    第二：在构建每条样本表示的时候，我们分别测试使用样本中所有词表示的平均值（mean），最大值(max)，加和(sum)作为样本的词嵌入表示。根据实验六和实验七结果显示，通过最大化的方法来构造样本表示会导致实验效果下降。这可能是因为样本表示中的每一个元素都去样本词中对应元素的最大值，从而减少了样本不同特征之间的区分度。进而导致模型更难分类正确该样本。而使用加求与平均的方法的实验结果差不多，这是因为相对样本表示中的其他特征来说，不管是对元素加和还是平均，都可以较大程度上保留样本中特征的区分度，从而使得模型的效果稳定。
-    第三： 根据实验结果显示，发现基于FastText的词向量表示的分类模型结果稍低于基于Word2vec的试验结果。 以实验四为例，这是由于二者在生成词向量时模型设置的参数不同导致二者的词表个数不同导致的，Word2vec模型中有26119个词表，而FastText模型中只有19592个词表。因此FastText构造的样本表示质量要稍低于Word2vec，从而导致基于FastText的分类结果略低于基于Word2vec的分类模型。然而，如果单独看不同词表产生的FastText样本表示结果，根据实验三（词表个数217943），四（词表个数19592），五（词表个数39979）中的Fasttext结果显示，可以发现实验四中由于词表个数最少，其分类结果也最差。从而验证了词表个数会对FastText构造的样本表示影响较大。
+##### 任务1: 获取 基本的 NLP feature
 
-  
-### 机器学习模型
-* lgb.LGBMClassifier( num_leaves=30, reg_alpha=1, reg_lambda=10, max_depth=3)
-  该模型可以调整的参数很多，而且很容易产生过拟合，如果产生过拟合，可以过降低树的叶子结点个数（num_leaves）,调整L1正则化（reg_alpha）和L2正则化（reg_lambda）参数以及降低树的深度（max_depth）。
+1. 完成以下basic NLP 特征
 
-* RandomForestClassifier(n_estimators=500, max_depth=5)
-根据实验结果显示，该模型的准确率大概在0.4左右，这个结果相对来说是比较低的，可以通过调节随机森林模型中n_estimators,max_depth等参数来提升模型性能。（补充实验）
-* LogisticRegression_test
-   实验结果显示逻辑回归模型的测试集的准确率大概在0.7左右，但是实验中训练集的准确率通常要高于测试集，因此可以认为该模型产生了一定的过拟合现象。比如在实验二中的TF-IDF中，逻辑回归在训练集的准确率是0.8127，在测试集上的准确率是0.7545，可以看出产生了一定的过拟合现象，因此可以在该模型中使用一些防止过拟合策略来提高模型的性能。比如正则化策略等。
-* MultinomialNB_test
-根据实验结果显示，该模型的实验效果大概在0.35-0.45之间，总体上低于其他分类模型。该模型效果较差主要是因为朴素贝叶斯模型假设样本特征之间是相互独立的，因此在特征之间关联度比价高的情况下该模型表现的会比较差。
-* SVC_test accuracy
-根据实验四结果显示，该分类模型的分类结果较好。可以发现SVC模型在训练集上的准确率要高于测试集，说明该模型同样具有一定程度的过拟合现象。同样可以考虑加入正则化操作来提高模型的泛化能力。
+    ```
+    def get_basic_feature(df):
+        计算input 长度
+        计算大写 个数
+        计算大写个数和长度的比值
+        计算感叹号的个数
+        计算问号长度
+        计算标点符号个数
+        计算 `*&$%` 符号的个数
+        计算词的个数
+        计算唯一词的个数
+        词的个数与唯一词个数的比例
+        计算名词个数与长度的占比
+        计算形容词个数与长度的占比
+        计算动词个数与长度的占比
+        计算名词个数与词的个数的占比
+        计算形容词个数与词的个数的占比
+        计算动词个数与词的个数的占比
+        计算title的词的个数
+        计算词的平均长度
+        计算标点个数与词的个数的占比
+        return df
+    ```
+2. 在 `src/ML/models.py` 中的 `feature_engineer`函数 调用 `src/utils/feature.py`中的`get_basic_feature`函数
 
-总的来说，朴素贝叶斯模型由于特征之间相互独立性的假设，导致其在大规模数据集上的效果最差。以实验四为例。分类准确率 SVC>LightGBM>LR>MultiNB>RandomForesst 
+##### 任务2: 根据已经加载的模型获取封面的特征
+
+1. 完成 image 特征的获取
+
+    ```
+    def get_img_embedding(cover, model):
+        transforms = get_transforms()
+        1. 读取封面， 返回modal embedding
+        hint  返回需要转换成cpu模式
+        return
+    ```
+2. 在 `src/ML/models.py` 中的 `feature_engineer`函数 调用 `src/utils/feature.py`中的`get_img_embedding`函数
+
+##### 任务3: 根据已经加载的bert模型获取embedding
+
+1. 完成bert embedding 特征的获取
+
+    ```
+    def get_pretrain_embedding(text, tokenizer, model):
+        1. 返回bert embedding
+        hint  返回需要转换成cpu模式
+        return
+    ```
+2. 在 `src/ML/models.py` 中的 `feature_engineer`函数 调用 `src/utils/feature.py`中的`get_pretrain_embedding`函数
+
+##### 任务4: 根据`src/data/mlData.py` 中已经加载的`lda` 模型， 获取lda 特征
+
+1. 将输入转换为bag of word 格式
+
+2. 完成lda 特征的获取
+
+    ```
+    def get_lda_features(lda_model, document):
+        1. 返回lda feature
+        return
+    ```
+3. 在 `src/ML/models.py` 中的 `feature_engineer`函数 调用 `src/utils/feature.py`中的`get_lda_features`函数
+
+##### 任务4: 根据`src/data/mlData.py` 中已经加载的 `autoencoder` 模型， 获取 autoencoder 特征
+
+1. 完成 autoencoder 特征的获取
+
+    ```
+    def get_autoencoder_feature(train,
+                            test,
+                            max_features,
+                            max_len,
+                            model,
+                            tokenizer=None):
+        1. 返回autoencoder embedding
+        return
+    ```
+3. 在 `src/ML/models.py` 中的 `feature_engineer`函数 调用 `src/utils/feature.py`中的`get_autoencoder_feature`函数
+
+###### 你可能用到的模块：
+
+    transformers.BertModel
+    transformers.BertTokenizer
+    lightgbm
+
+### 模块4: 模型训练
+
+#### src/ML/models.py:
+
+##### 任务1: 不平衡数据处理。unbalance_helper 函数
+
+1. 定义 over_sampling 方法， 如SMOTE， 处理样本不平衡问题
+
+2. 定义 under_sampling 方法， 如ClusterCentroids， 处理样本不平衡问题
+
+##### 任务2: 参数搜索。
+
+1. 使用 param_search 进行参数搜索
+
+2. 将搜索到的参数， 使用`set_params` 进行更新
+
+##### 任务3: 模型评价。
+
+1. 预测测试集的label
+
+2. 预测训练机的label
+
+3. 计算percision , accuracy, recall, fi_score
+
+##### 任务4: 模型保存以及加载
+
+1. 保存模型 save函数
+
+2. 加载模型 load函数
 
 
+### 模块5: 模型部署
 
-### 深度学习模型结果
-#### CNN文本分类结果
+#### src/ML/models.py:
 
-|   | #Train  |#val   | #Test  |
-|---|---|---|---|
-|  fast_embedding | 0.8125  |  0.7789 |  0.7769 |
-| W2v_embedding  |   |   |   |
+##### 任务1: 完成模型预测函数
 
-#### RCNN文本分类结果
+1. 将输入数据转化为特征
 
-|   | #Train  |#val   | #Test  |
-|---|---|---|---|
-|  fast_embedding | 0.8125 |0.7644  |  0.7596 |
-| W2v_embedding  |   |   |   |
+2. 使用训练好的模型进行预测
+
+#### app.py
+
+##### 任务2: 使用 `flask`进行部署
+
+1. 接受RESTFul 传递的参数， 调用`src/ML/models.py` 中的`predict` 函数进行预测
+
+2. 使用`curl` 命令或`postman`等工具进行测试
+
+###### 启动
+``` shell
+python3 app.py
+```
+###### 你可能用到的模块：
+
+    Flask
+    bayes_opt.BayesianOptimization
+    sklearn.metrics
+    sklearn.model_selection.GridSearchCV
+    imblearn.ensemble.BalancedBaggingClassifier
+    imblearn.over_sampling.SMOTE
+    imblearn.under_sampling.ClusterCentroids
+
+### 模块6: fine-tune bert 模型 （选做）
+
+#### src/DL/train.py:
+
+##### 任务1: 加载数据
+
+1. 调用自定义的MyDataset， 并创建DataLoader
+
+#### src/DL/train.py:
+
+##### 任务2: 完成深度学习的核心代码
+
+1. 初始化AdamW 优化器
+
+2. 加载模型进行训练
+
+3. 清空梯度
+
+4. 计算loss
+
+5. loss backpropergation
+
+6. 优化器step
+
+#### src/DL/models/bert.py
+
+##### 任务3: 完成`bert`模型的训练
+
+        ```
+        def forward(self, x):
+                ### TODO
+                # 构建bert 分类模型
+                return out
+        ```
+1. 完成forward 的功能
+
+#### 运行
+
+```shell
+cd src/DL/
+python3 train.py --model bert
+```
+
+####
+
